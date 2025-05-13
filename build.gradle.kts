@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.clip"
-version = "2.11.7-DEV-${System.getProperty("BUILD_NUMBER")}"
+version = "2.11.7-DEV-${if (System.getProperty("FOLIA_BUILD", "false").toBoolean()) "folia" else System.getProperty("BUILD_NUMBER")}"
 
 description = "An awesome placeholder provider!"
 
@@ -67,6 +67,17 @@ tasks {
 
     build {
         dependsOn(named("shadowJar"))
+    }
+
+    register("buildFolia") {
+        group = "build"
+        description = "Builds the plugin with Folia support"
+        
+        doFirst {
+            System.setProperty("FOLIA_BUILD", "true")
+        }
+        
+        finalizedBy(build)
     }
 
     withType<JavaCompile> {
