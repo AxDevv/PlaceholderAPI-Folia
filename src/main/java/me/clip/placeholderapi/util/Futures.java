@@ -43,7 +43,7 @@ public final class Futures {
       if (Bukkit.isPrimaryThread()) {
         consumer.accept(value, exception);
       } else {
-        Bukkit.getScheduler().runTask(plugin, () -> consumer.accept(value, exception));
+        SchedulerUtil.runTask(plugin, () -> consumer.accept(value, exception));
       }
     });
   }

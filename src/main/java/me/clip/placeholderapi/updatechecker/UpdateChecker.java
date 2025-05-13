@@ -27,6 +27,7 @@ import java.util.Arrays;
 import javax.net.ssl.HttpsURLConnection;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.util.Msg;
+import me.clip.placeholderapi.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -55,7 +56,7 @@ public class UpdateChecker implements Listener {
   }
 
   public void fetch() {
-    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+    SchedulerUtil.runTaskAsync(plugin, () -> {
       try {
         HttpsURLConnection con = (HttpsURLConnection) new URL(
             "https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID).openConnection();
@@ -76,7 +77,7 @@ public class UpdateChecker implements Listener {
         return;
       }
 
-      Bukkit.getScheduler().runTask(plugin, () -> {
+      SchedulerUtil.runTask(plugin, () -> {
         plugin.getLogger()
             .info("An update for PlaceholderAPI (v" + getSpigotVersion() + ") is available at:");
         plugin.getLogger()

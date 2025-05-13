@@ -33,6 +33,7 @@ import me.clip.placeholderapi.expansion.manager.LocalExpansionManager;
 import me.clip.placeholderapi.listeners.ServerLoadEventListener;
 import me.clip.placeholderapi.updatechecker.UpdateChecker;
 import me.clip.placeholderapi.util.Msg;
+import me.clip.placeholderapi.util.SchedulerUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.AdvancedPie;
@@ -158,6 +159,10 @@ public final class PlaceholderAPIPlugin extends JavaPlugin {
 
     adventure = BukkitAudiences.create(this);
 
+    if (me.clip.placeholderapi.util.SchedulerUtil.isFolia()) {
+      getLogger().info("Folia server detected - using regionalized threading model");
+    }
+
     if (config.isCloudEnabled()) {
       getCloudExpansionManager().load();
     }
@@ -174,7 +179,7 @@ public final class PlaceholderAPIPlugin extends JavaPlugin {
 
     HandlerList.unregisterAll(this);
 
-    Bukkit.getScheduler().cancelTasks(this);
+    SchedulerUtil.cancelTasks(this);
 
     adventure.close();
     adventure = null;
@@ -225,6 +230,15 @@ public final class PlaceholderAPIPlugin extends JavaPlugin {
     return config;
   }
 
+  /**
+   * Check if the server is using Folia
+   * 
+   * @return true if the server is using Folia, false otherwise
+   */
+  public boolean isFolia() {
+    return me.clip.placeholderapi.util.SchedulerUtil.isFolia();
+  }
+
   private void setupCommand() {
     final PluginCommand pluginCommand = getCommand("placeholderapi");
     if (pluginCommand == null) {
@@ -242,6 +256,8 @@ public final class PlaceholderAPIPlugin extends JavaPlugin {
         () -> getPlaceholderAPIConfig().isCloudEnabled() ? "yes" : "no"));
 
     metrics.addCustomChart(new SimplePie("using_spigot", () -> getServerVersion().isSpigot() ? "yes" : "no"));
+    
+    metrics.addCustomChart(new SimplePie("using_folia", () -> isFolia() ? "yes" : "no"));
 
     metrics.addCustomChart(new AdvancedPie("expansions_used", () -> {
       final Map<String, Integer> values = new HashMap<>();
@@ -262,8 +278,7 @@ public final class PlaceholderAPIPlugin extends JavaPlugin {
       Class.forName("org.bukkit.event.server.ServerLoadEvent");
       new ServerLoadEventListener(this);
     } catch (final ClassNotFoundException ignored) {
-      Bukkit.getScheduler()
-          .runTaskLater(this, () -> getLocalExpansionManager().load(Bukkit.getConsoleSender()), 1);
+      SchedulerUtil.runTaskLater(this, () -> getLocalExpansionManager().load(Bukkit.getConsoleSender()), 1);
     }
   }
 

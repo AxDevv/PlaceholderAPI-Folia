@@ -28,6 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.jetbrains.annotations.NotNull;
 
+// This class doesn't need to be modified as it only uses events, which are compatible with Folia
 public final class ServerLoadEventListener implements Listener {
 
   @NotNull
